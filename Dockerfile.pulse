@@ -1,0 +1,22 @@
+#
+# Dockerfile which builds a Chuck container.
+#
+# Set --env PULSE_SERVER=tcp:<pulse server ip>:<pulse server port>
+#
+FROM ubuntu:18.04
+
+RUN apt update
+RUN apt-get install -y gcc flex bison make vim libasound2 libasound2-dev wget g++ libsndfile1 libsndfile1-dev
+
+RUN apt-get install -y less pulseaudio pulseaudio-utils pulsemixer libpulse-dev pamix paprefs pavumeter pavucontrol 
+#
+# Get, make, install chuck
+#
+RUN wget http://chuck.cs.princeton.edu/release/files/chuck-1.4.0.0.tgz
+RUN tar zxvf chuck-1.4.0.0.tgz
+
+WORKDIR /chuck-1.4.0.0/src
+RUN make linux-pulse && make install
+WORKDIR /chuck-1.4.0.0/examples
+
+ENTRYPOINT /bin/bash

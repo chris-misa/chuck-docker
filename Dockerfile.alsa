@@ -1,0 +1,21 @@
+#
+# Dockerfile which builds a Chuck container.
+#
+# Use --device /dev/snd to give access to local alsa sound system.
+#
+FROM ubuntu:18.04
+
+RUN apt update
+RUN apt-get install -y gcc flex bison make vim alsa-base alsa-utils libasound2 libasound2-dev wget g++ libsndfile1 libsndfile1-dev
+
+#
+# Get, make, install chuck
+#
+RUN wget http://chuck.cs.princeton.edu/release/files/chuck-1.4.0.0.tgz
+RUN tar zxvf chuck-1.4.0.0.tgz
+
+WORKDIR /chuck-1.4.0.0/src
+RUN make linux-alsa && make install
+WORKDIR /chuck-1.4.0.0/examples
+
+ENTRYPOINT /bin/bash
