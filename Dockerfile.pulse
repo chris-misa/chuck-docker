@@ -3,6 +3,9 @@
 #
 # Set --env PULSE_SERVER=tcp:<pulse server ip>:<pulse server port>
 #
+# Then on host:
+# $ pactl load-module module-native-protocol-tcp port=<pulse server port> auth-ip-acl=<container ip>
+#
 FROM ubuntu:18.04
 
 RUN apt update
