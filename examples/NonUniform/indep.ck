@@ -1,6 +1,28 @@
 //
-// Synthesize samples from a descrete independent random variable by given pmf
+// Implements a descrete random variate based on the given probability mass function.
+// Note that the given PMF does not need to be normalized.
 //
+// 2019, Chris Misa
+//
+//
+// Methods of note:
+//
+// fun void init(float new_pmf[]);
+//   Initialize with the given (psudo) probability mass function.
+//
+// fun int next();
+//   Returns the next sample of the random variate given it's current pmf.
+//
+// fun void to(float new_pmf[], dur dur_to_new);
+//   Morphs from current pmf to new_pmf over given duration.
+//   For now, new pmf must have same length as original pmf.
+//   Probably want to spork this in its own shred.
+//
+//
+// Debug methods:
+//
+// fun void print_cdf();
+//   Dumps the current computed distribution function on chuck stdout.
 //
 
 public class Indep
@@ -42,6 +64,29 @@ public class Indep
   }
 
   //
+  // Get next random value
+  // (Binary search to pass a uniform variate through inverse of cdf)
+  //
+  fun int next()
+  {
+    Math.randomf() => float unif;
+    0 => int l;
+    cdf.cap() => int r;
+    r / 2 => int m;
+    while (true) {
+      if (cdf[m] >= unif && unif >= cdf[m-1]) {
+        return m;
+      } else if (unif > cdf[m]) {
+        m => l;
+        (l + r) / 2 => m;
+      } else {
+        m => r;
+        (l + r) / 2 => m;
+      }
+    }
+  }
+
+  //
   // Ramp from prev to next cdf
   //
   fun void to(float new_pmf[], dur dur_to_new) 
@@ -71,29 +116,6 @@ public class Indep
   {
     for (0 => int i; i < cdf.cap(); i++) {
       <<< "Index:", i, "is", cdf[i] >>>;
-    }
-  }
-
-  //
-  // Get next random value
-  // (Binary search to pass a uniform variate through inverse of cdf)
-  //
-  fun int next()
-  {
-    Math.randomf() => float unif;
-    0 => int l;
-    cdf.cap() => int r;
-    r / 2 => int m;
-    while (true) {
-      if (cdf[m] >= unif && unif >= cdf[m-1]) {
-        return m;
-      } else if (unif > cdf[m]) {
-        m => l;
-        (l + r) / 2 => m;
-      } else {
-        m => r;
-        (l + r) / 2 => m;
-      }
     }
   }
 }

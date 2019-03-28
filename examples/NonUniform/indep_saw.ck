@@ -8,6 +8,11 @@
 //   while (true) { 1::second => now; }
 // }
 //
+// Probably pitch is perceived at the expected value of the distribution?
+// Anyway we could module base frequency to that the target frequency matches expected value
+// which might allow distributional changes to effect timbre indep. of pitch for
+// musical purposes.
+//
 
 public class IndepSaw extends Chubgraph
 {
