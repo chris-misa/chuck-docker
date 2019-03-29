@@ -18,6 +18,8 @@
 //   For now, new pmf must have same length as original pmf.
 //   Probably want to spork this in its own shred.
 //
+// fun float E()
+//   Returns the current expected value (mean) calculated from the CDF.
 //
 // Debug methods:
 //
@@ -107,6 +109,19 @@ public class Indep
         }
       }
     }
+  }
+
+  //
+  // Computes the expected value off the current CDF
+  // Note that is is wrt to 1-based length where are .next() is wrt 0-based values
+  //
+  fun float E()
+  {
+    0.0 => float sum;
+    for (1 => int i; i < cdf.size(); i++) {
+      (cdf[i] - cdf[i - 1]) * i +=> sum;
+    }
+    return sum;
   }
 
   //

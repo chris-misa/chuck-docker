@@ -8,24 +8,22 @@
 //   while (true) { 1::second => now; }
 // }
 //
-// Probably pitch is perceived at the expected value of the distribution?
-// Anyway we could module base frequency to that the target frequency matches expected value
-// which might allow distributional changes to effect timbre indep. of pitch for
-// musical purposes.
-//
 
 public class IndepSaw extends Chubgraph
 {
   Step s => Gain g => outlet;
   0.0 => s.next;
 
-  float f;
-  float a;
-  float da;
-  float m;
-  Indep dm;
-  int pmf_len;
+  float f;     // Target frequency
+  float a;     // Current sample value in [-1.0, 1.0]
+  float da;    // Sample value step
+  float n;     // Number of steps per cycle
+  Indep dm;    // Indep object for generating random variates
+  int pmf_len; // Number of elements in pmf
 
+  //
+  // Sample update function, sporked by init
+  //
   fun void next_frame()
   {
     while (true) {
@@ -34,7 +32,8 @@ public class IndepSaw extends Chubgraph
       if (a > 1.0) {
         2.0 -=> a;
       }
-      (dm.next() * m / pmf_len)::ms => now;
+      // Generate delta-time with dm.E() at f
+      ((dm.next() * 1000) / (dm.E() * f * n))::ms => now;
     }
   }
 
@@ -44,13 +43,16 @@ public class IndepSaw extends Chubgraph
   fun void init(float new_pmf[], float new_f, float new_g)
   { 
     new_g => g.gain;
-    new_f => f;
-    -1.0 => a;
-    0.1 => da;
-    2.0 / da => float n;
-    1000 / (n * f) => m;
+
     dm.init(new_pmf);
     new_pmf.cap() => pmf_len;
+
+    new_f => f;
+
+    -1.0 => a;
+    0.1 => da;
+    2.0 / da => n;
+
     spork ~ next_frame();
   }
 
